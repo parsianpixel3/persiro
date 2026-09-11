@@ -100,18 +100,18 @@ async def _handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWri
 
     # ── بررسی انقضا و حجم قبل از پذیرش ──
     if _is_expired():
-        logger.info(f"zema: رد شد (منقضی) — {peer_ip}")
+        logger.info(f"zeussocks5: رد شد (منقضی) — {peer_ip}")
         writer.close()
         return
     if _is_traffic_exceeded():
-        logger.info(f"zema: رد شد (حجم تمام شد) — {peer_ip}")
+        logger.info(f"zeussocks5: رد شد (حجم تمام شد) — {peer_ip}")
         writer.close()
         return
 
     # ── بررسی حداکثر اتصال per IP ──
     max_per_ip = zeus_proxy_state["config"]["max_connections_per_ip"]
     if max_per_ip and _connections_by_ip.get(peer_ip, 0) >= max_per_ip:
-        logger.info(f"zema: رد شد (حداکثر اتصال از {peer_ip}) ← {_connections_by_ip.get(peer_ip)}/{max_per_ip}")
+        logger.info(f"zeussocks5: رد شد (حداکثر اتصال از {peer_ip}) ← {_connections_by_ip.get(peer_ip)}/{max_per_ip}")
         writer.close()
         return
 
@@ -193,7 +193,7 @@ async def _handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWri
     except (asyncio.IncompleteReadError, ConnectionResetError, OSError):
         pass
     except Exception as exc:
-        logger.warning(f"zema: خطای غیرمنتظره برای {peer_ip}: {exc}")
+        logger.warning(f"zeussocks5: خطای غیرمنتظره برای {peer_ip}: {exc}")
     finally:
         try:
             writer.close()
@@ -211,11 +211,11 @@ async def _handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWri
 
 
 async def _auto_delete(reason: str):
-    logger.info(f"zema: حذف خودکار — {reason}")
+    logger.info(f"zeussocks5: حذف خودکار — {reason}")
     try:
         await delete_zeus_proxy()
     except Exception as e:
-        logger.warning(f"zema: خطا در حذف خودکار: {e}")
+        logger.warning(f"zeussocks5: خطا در حذف خودکار: {e}")
 
 
 async def _ensure_local_server() -> int:
@@ -228,7 +228,7 @@ async def _ensure_local_server() -> int:
     port = _free_local_port()
 
     _server = await asyncio.start_server(_handle_client, "0.0.0.0", port)
-    logger.info(f"zema: سرور محلی روی پورت {port} بالا آمد")
+    logger.info(f"zeussocks5: سرور محلی روی پورت {port} بالا آمد")
     return port
 
 
@@ -291,7 +291,7 @@ async def delete_zeus_proxy():
         try:
             await bottokentcpproxy.delete_public_proxy(result["proxy_id"])
         except Exception as e:
-            logger.warning(f"zema: خطا در حذف TCP Proxy: {e}")
+            logger.warning(f"zeussocks5: خطا در حذف TCP Proxy: {e}")
     if _server is not None:
         _server.close()
         await _server.wait_closed()
