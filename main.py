@@ -49,7 +49,7 @@ from typing import Optional
 import base64
 import botgeneratedomin
 import bottokentcpproxy
-import zema
+import zeussocks5
 from protocol.mtproto import mtproto_native as mtproto
 from fastapi import FastAPI, Request, HTTPException, WebSocket, WebSocketDisconnect, Depends
 from fastapi.responses import Response, HTMLResponse, JSONResponse, RedirectResponse
@@ -1491,7 +1491,7 @@ async def api_zeus_proxy_create(request: Request, _=Depends(require_auth)):
     expires_days = body.get("expires_days")
     max_connections_per_ip = body.get("max_connections_per_ip")
     try:
-        result = await zema.create_zeus_proxy(
+        result = await zeussocks5.create_zeus_proxy(
             token or None,
             traffic_limit_gb=float(traffic_limit_gb) if traffic_limit_gb is not None else None,
             expires_days=int(expires_days) if expires_days is not None else None,
@@ -1506,11 +1506,11 @@ async def api_zeus_proxy_create(request: Request, _=Depends(require_auth)):
 
 @app.get("/api/zeus-proxy/status")
 async def api_zeus_proxy_status(_=Depends(require_auth)):
-    return zema.get_zeus_status()
+    return zeussocks5.get_zeus_status()
 
 @app.post("/api/zeus-proxy/delete")
 async def api_zeus_proxy_delete(_=Depends(require_auth)):
-    await zema.delete_zeus_proxy()
+    await zeussocks5.delete_zeus_proxy()
     log_activity("system", "پروکسی Zeus حذف شد", "warn")
     return {"ok": True}
 
@@ -1525,7 +1525,7 @@ async def api_zeus_proxy_config(request: Request, _=Depends(require_auth)):
     traffic_limit_gb = body.get("traffic_limit_gb")
     expires_days = body.get("expires_days")
     max_connections_per_ip = body.get("max_connections_per_ip")
-    cfg = zema.update_zeus_config(
+    cfg = zeussocks5.update_zeus_config(
         traffic_limit_gb=float(traffic_limit_gb) if traffic_limit_gb is not None else None,
         expires_days=int(expires_days) if expires_days is not None else None,
         max_connections_per_ip=int(max_connections_per_ip) if max_connections_per_ip is not None else None,
